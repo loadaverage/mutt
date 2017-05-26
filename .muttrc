@@ -4,21 +4,21 @@ set crypt_autoencrypt=no         # automatically encrypt outgoing messages
 set crypt_replyencrypt=yes       # encrypt only replies to signed messages
 set crypt_replysignencrypted=yes # encrypt and sign replies to encrypted messages
 set crypt_verify_sig=yes         # automatically verify the sign of a message when opened
-set pgp_good_sign='^gpg: Good signature from'
-set pgp_timeout=600
-# gpg commands
-set pgp_sign_command='gpg --no-verbose --batch --output - --passphrase-fd 0 --armor --detach-sign --textmode %?a?-u %a? %f'
-set pgp_decode_command='gpg %?p?--passphrase-fd 0? --no-verbose --batch --output - %f'
-set pgp_verify_command='gpg --no-verbose --batch --output - --verify %s %f'
-set pgp_decrypt_command='gpg --passphrase-fd 0 --no-verbose --batch --output - %f'
-set pgp_clearsign_command='gpg --no-verbose --batch --output - --passphrase-fd 0 --armor --textmode --clearsign %?a?-u %a? %f'
-set pgp_encrypt_only_command='pgpewrap gpg --batch --quiet --no-verbose --output - --encrypt --textmode --armor --always-trust --encrypt-to 0xC9C40C31 -- -r %r -- %f'
-set pgp_encrypt_sign_command='pgpewrap gpg --passphrase-fd 0 --batch --quiet --no-verbose --textmode --output - --encrypt --sign %?a?-u %a? --armor --always-trust --encrypt-to 0xC9C40C31 -- -r %r -- %f'
-set pgp_import_command='gpg --no-verbose --import -v %f'
-set pgp_export_command='gpg --no-verbose --export --armor %r'
-set pgp_verify_key_command='gpg --no-verbose --batch --fingerprint --check-sigs %r'
-set pgp_list_pubring_command='gpg --no-verbose --batch --with-colons --list-keys %r' 
-set pgp_list_secring_command='gpg --no-verbose --batch --with-colons --list-secret-keys %r' 
+set pgp_sign_as=${KEYID}
+# gpg commands, gpgme in use
+#set pgp_sign_command='gpg --no-verbose --batch --output - --passphrase-fd 0 --armor --detach-sign --textmode %?a?-u %a? %f'
+#set pgp_decode_command='gpg %?p?--passphrase-fd 0? --no-verbose --batch --output - %f'
+#set pgp_verify_command='gpg --no-verbose --batch --output - --verify %s %f'
+#set pgp_decrypt_command='gpg --passphrase-fd 0 --no-verbose --batch --output - %f'
+#set pgp_clearsign_command='gpg --no-verbose --batch --output - --passphrase-fd 0 --armor --textmode --clearsign %?a?-u %a? %f'
+#set pgp_encrypt_only_command='pgpewrap gpg --batch --quiet --no-verbose --output - --encrypt --textmode --armor --always-trust --encrypt-to 0xC9C40C31 -- -r %r -- %f'
+#set pgp_encrypt_sign_command='pgpewrap gpg --passphrase-fd 0 --batch --quiet --no-verbose --textmode --output - --encrypt --sign %?a?-u %a? --armor --always-trust --encrypt-to 0xC9C40C31 -- -r %r -- %f'
+#set pgp_import_command='gpg --no-verbose --import -v %f'
+#set pgp_export_command='gpg --no-verbose --export --armor %r'
+#set pgp_verify_key_command='gpg --no-verbose --batch --fingerprint --check-sigs %r'
+#set pgp_list_pubring_command='gpg --no-verbose --batch --with-colons --list-keys %r' 
+#set pgp_list_secring_command='gpg --no-verbose --batch --with-colons --list-secret-keys %r' 
+set crypt_use_gpgme=yes
 # gpg-encrypted credentials
 source 'gpg -d ~/.mutt/credentials.gpg |'
 
@@ -26,7 +26,6 @@ source 'gpg -d ~/.mutt/credentials.gpg |'
 set from='crash@example.org'
 set realname='Vadim'
 set editor='vim'
-set timeout=60
 set sleep_time=0
 auto_view text/html
 alternative_order text/plain text/html
@@ -41,13 +40,16 @@ send-hook  '~f ^zero@example.org$'           'set realname="VS"'
 
 # lists
 subscribe lists.debian.org
+subscribe lists.gentoo.org
+# connection
+set ssl_starttls=yes
+set ssl_force_tls=yes
 
 # imap & folders
 # set imap_user='' # gpg-encrypted credentials
 # set imap_pass='' # gpg-encrypted credentials 
 # set folder=''    # gpg-encrypted credentials 
 # set spoolfile='' # gpg-encrypted credentials 
- 
 set record='=Sent'
 set postponed='=Drafts'
 set trash='=Trash'
@@ -72,7 +74,7 @@ set menu_scroll            # scroll in menus
 set tilde                  # show tildes like in vim
 unset markers              # no ugly plus signs
 set sidebar_sort_method=unsorted
-mailboxes =Inbox =Sent =Drafts =Trash =Someone
+mailboxes =Inbox =Sent =Drafts =Trash =github =gentoo
 
 # keys
 bind index                  \CK sidebar-prev
@@ -98,7 +100,8 @@ macro index,pager           gi  '<change-folder>=Inbox<enter>'  # Go to inbox
 macro index,pager           gs  '<change-folder>=Sent<enter>'   # Go to last
 macro index,pager           gt  '<change-folder>=Trash<enter>'  # Go to last
 macro index,pager           gd  '<change-folder>=Drafts<enter>' # Go to last
-
+macro index,pager           \eN '<enter-command>set index_format="[%Z] %D  %-25.25F  %s"<enter>'
+macro index,pager           \en '<enter-command>set index_format="[%Z] #%C %D  %-25.25F  %s"<enter>'
 # index view
 set wait_key=no          # shut up, mutt
 set mbox_type=Maildir    # mailbox type
@@ -125,19 +128,19 @@ set alias_file       = ~/.mutt/alias         # where to store aliases
 set header_cache     = ~/.mutt/cache/headers # where to store headers
 set message_cachedir = ~/.mutt/cache/bodies  # where to store bodies
 set certificate_file = ~/.mutt/certificates  # where to store certs
-#set mailcap_path     = ~/.mutt/mailcap       # entries for filetypes
+set mailcap_path     = ~/.mutt/mailcap       # entries for filetypes
 set tmpdir           = ~/.mutt/temp          # where to keep temp files
 set signature        = ~/.mutt/sig           # my signature file
 
 # formats
 set date_format='%a %b %d %H:%M'
-set index_format='[%Z] #%C %D  %-25.25F  %s'
+set index_format='[%Z] %D  %-25.25F  %s'
 set sort=threads                         # like gmail
 set sort_aux=reverse-last-date-received  # like gmail
 set strict_threads=no
 set uncollapse_jump                        # don't collapse on an unread message
 set sort_re                                # thread based on regex
-set reply_regexp = '^(([Rr][Ee]?(\[[0-9]+\])?: *)?(\[[^]]+\] *)?)*'
+#set reply_regexp = '^(([Rr][Ee]?(\[[0-9]+\])?: *)?(\[[^]]+\] *)?)*'
 set attribution='On %[%a, %b %e, at %H:%M], %n <%a> wrote:'
 
 # colors goes here [https://github.com/altercation/mutt-colors-solarized]
