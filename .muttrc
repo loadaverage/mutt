@@ -102,6 +102,8 @@ macro index,pager           gt  '<change-folder>=Trash<enter>'  # Go to last
 macro index,pager           gd  '<change-folder>=Drafts<enter>' # Go to last
 macro index,pager           \eN '<enter-command>set index_format="[%Z] %D  %-25.25F  %s"<enter>'
 macro index,pager           \en '<enter-command>set index_format="[%Z] #%C %D  %-25.25F  %s"<enter>'
+macro index                 \eb '<enter-command>set strict_threads=yes<enter>'
+macro index                 \eB '<enter-command>set strict_threads=no<enter>'
 # index view
 set wait_key=no          # shut up, mutt
 set mbox_type=Maildir    # mailbox type
@@ -140,7 +142,7 @@ set sort_aux=reverse-last-date-received  # like gmail
 set strict_threads=no
 set uncollapse_jump                        # don't collapse on an unread message
 set sort_re                                # thread based on regex
-#set reply_regexp = '^(([Rr][Ee]?(\[[0-9]+\])?: *)?(\[[^]]+\] *)?)*'
+set reply_regexp = '^(([Rr][Ee]?(\[[0-9]+\])?: *)?(\[[^]]+\] *)?)*'
 set attribution='On %[%a, %b %e, at %H:%M], %n <%a> wrote:'
 
 # colors goes here [https://github.com/altercation/mutt-colors-solarized]
@@ -177,7 +179,7 @@ color error         color160        color236
 color tilde         color235        color236        
 color message       color37         color236        
 color markers       color160        color254        
-color attachment    color249        color236        
+color attachment    color242        color236        
 color search        color61         color236        
 #color status        J_black         J_status        
 color status        color243        color237        
