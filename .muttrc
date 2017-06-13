@@ -74,6 +74,7 @@ set menu_scroll            # scroll in menus
 set tilde                  # show tildes like in vim
 unset markers              # no ugly plus signs
 set sidebar_sort_method=unsorted
+set mail_check_stats=yes
 mailboxes =Inbox =Sent =Drafts =Trash =github =gentoo
 
 # keys
